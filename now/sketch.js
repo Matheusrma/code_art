@@ -36,7 +36,7 @@ class Grid{
 	getNewColor(){
 		let dice = random(0,100);
 
-		if (dice < 5){
+		if (dice < 4){
 			return {
 				"id":"1",
 				"r":255,
@@ -91,9 +91,9 @@ class Grid{
 						if (adjacents[k].color.id == "2"){
 
 							adjacents[k].color = {
-								"id":"4",
+								"id":"3",
 								"r":0,
-								"g":0,
+								"g":255,
 								"b":0,
 								"a": 255
 							};
@@ -103,10 +103,9 @@ class Grid{
 					}
 
 					if (!foundMeat){
-						let randomStep = Math.floor(random(0,adjacents.length - 0.01));
+						let randomStep = floor(random(0,adjacents.length - 0.01));
 
-						if (adjacents[randomStep].color.id == "4" || 
-							adjacents[randomStep].color.id == "1" )
+						if (adjacents[randomStep].color.id == "1" )
 							continue;
 
 						adjacents[randomStep].color = {
@@ -124,6 +123,33 @@ class Grid{
 							"b":0,
 							"a": 255
 						}
+					}
+				}
+				else if (cell.color.id == "2"){
+					var breed = false;
+					for (let k = 0; k < adjacents.length; ++k){
+						if (adjacents[k].color.id == "2"){
+							let breedChance = random(0,1);
+							if (breedChance > 0.15) continue;
+
+							let randomStart = floor(random(0,adjacents.length - 0.01));
+							for (let l = 0; l < adjacents.length && l != k; ++l){
+								let index = (randomStart + l) % adjacents.length;
+								if (adjacents[index].color.id == "3"){
+									adjacents[index].color = {
+										"id":"2",
+										"r":0,
+										"g":0,
+										"b":255,
+										"a":255
+									}
+									breed = true;
+									break;
+								}
+							}
+						}
+
+						if (breed) break;		
 					}
 				}
 			}
@@ -157,14 +183,14 @@ class Grid{
 var grid;
 
 function setup(){
-	createCanvas(600, 600);
+	createCanvas(800, 8000);
 
-	grid = new Grid(600, 600, 60, 60);
+	grid = new Grid(800, 800, 80, 80);
 	grid.draw();
 }
 
 function draw() {
-  if (keyIsDown(UP_ARROW)) {
+  if (!keyIsDown(UP_ARROW)) {
     grid.tick();
     grid.draw();
   }
