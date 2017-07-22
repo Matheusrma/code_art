@@ -1,4 +1,26 @@
 
+
+var RED = {
+	"id":"1",
+	"a": 255
+};
+
+var BLUE = {
+	"id":"2",
+	"r":34,
+	"g":102,
+	"b":102,
+	"a": 255
+}
+
+var GREEN = {
+	"id":"3",
+	"r":165,
+	"g":198,
+	"b":99,
+	"a": 255
+}
+
 class Cell{
 
 	constructor(x, y, color){
@@ -8,7 +30,6 @@ class Cell{
 	}
 
 }
-
 
 class Grid{
 	constructor(width, height, rows, columns){
@@ -36,33 +57,10 @@ class Grid{
 	getNewColor(){
 		let dice = random(0,100);
 
-		if (dice < 4){
-			return {
-				"id":"1",
-				"r":255,
-				"g":0,
-				"b":0,
-				"a":255
-			};			
-		}
+		if (dice < 4) return RED;
+		if (dice < 20) return BLUE;
 
-		if (dice < 20){
-			return {
-				"id":"2",
-				"r":0,
-				"g":0,
-				"b":255,
-				"a":255
-			};			
-		}
-
-		return {
-			"id":"3",
-			"r":0,
-			"g":255,
-			"b":0,
-			"a": 255
-		};
+		return GREEN;
 	}
 
 	draw(){
@@ -77,81 +75,87 @@ class Grid{
 	}
 
 	tick(){
-		console.log("Tick")
-
 		for (let i = 0; i < this.rows; i++){
 			for (let j = 0; j < this.columns; ++j){
-
 				var cell = this.cells[i][j];
-				var adjacents = this.getAdjacents(cell);
 
-				if (cell.color.id == "1"){
-					let foundMeat = false;
-					for (let k = 0; k < adjacents.length; ++k){
-						if (adjacents[k].color.id == "2"){
+				if (cell.color.id == RED.id){
+					this.fight_back(i,j);
+					this.eat(i,j);
+				}
+				else if (cell.color.id == BLUE.id){
+					this.breed(i,j);
+				}
+			}
+		}
+	}
 
-							adjacents[k].color = {
-								"id":"3",
-								"r":0,
-								"g":255,
-								"b":0,
-								"a": 255
-							};
-							foundMeat = true;
-						}
-						if (foundMeat) break;
-					}
+	eat(i,j){		
+		var cell = this.cells[i][j];
+		var adjacents = this.getAdjacents(cell);
 
-					if (!foundMeat){
-						let randomStep = floor(random(0,adjacents.length - 0.01));
+		let foundMeat = false;
 
-						if (adjacents[randomStep].color.id == "1" )
-							continue;
+		for (let k = 0; k < adjacents.length; ++k){
+			if (adjacents[k].color.id == BLUE.id){
 
-						adjacents[randomStep].color = {
-							"id":"1",
-							"r":255,
-							"g":0,
-							"b":0,
-							"a": 255
-						};
+				adjacents[k].color = GREEN;
+				foundMeat = true;
+			}
+			if (foundMeat) break;
+		}
 
-						cell.color = {
-							"id":"3",
-							"r":0,
-							"g":255,
-							"b":0,
-							"a": 255
-						}
+		if (!foundMeat){
+			let randomStep = floor(random(0,adjacents.length - 0.01));
+
+			if (adjacents[randomStep].color.id != RED.id){
+				adjacents[randomStep].color = RED;
+				cell.color = GREEN;
+			}
+		}
+	}
+
+	breed(i,j){
+		var cell = this.cells[i][j];
+		var adjacents = this.getAdjacents(cell);
+
+		var breed = false;
+		let breedChance = random(0,1);
+		if (breedChance > 0.10) return;
+
+		for (let k = 0; k < adjacents.length; ++k){
+			if (adjacents[k].color.id == BLUE.id){
+				let randomStart = floor(random(0,adjacents.length - 0.01));
+				for (let l = 0; l < adjacents.length && l != k; ++l){
+					let index = (randomStart + l) % adjacents.length;
+					if (adjacents[index].color.id == GREEN.id){
+						adjacents[index].color = BLUE;
+						breed = true;
+						break;
 					}
 				}
-				else if (cell.color.id == "2"){
-					var breed = false;
-					for (let k = 0; k < adjacents.length; ++k){
-						if (adjacents[k].color.id == "2"){
-							let breedChance = random(0,1);
-							if (breedChance > 0.15) continue;
+			}
 
-							let randomStart = floor(random(0,adjacents.length - 0.01));
-							for (let l = 0; l < adjacents.length && l != k; ++l){
-								let index = (randomStart + l) % adjacents.length;
-								if (adjacents[index].color.id == "3"){
-									adjacents[index].color = {
-										"id":"2",
-										"r":0,
-										"g":0,
-										"b":255,
-										"a":255
-									}
-									breed = true;
-									break;
-								}
-							}
-						}
+			if (breed) break;		
+		}
+	}
 
-						if (breed) break;		
-					}
-				}
+	fight_back(i,j){
+		var cell = this.cells[i][j];
+		var adjacents = this.getAdjacents(cell);
+
+		let count = 0;
+
+		for (let k = 0; k < adjacents.length; ++k){
+			if (adjacents[k].color.id == BLUE.id){
+				count++;
+			}
+		}
+
+		if (count == adjacents.length - 1){
+			let killChance = random(0,1);
+			if (killChance < 0.1) {
+				cell.color = GREEN;
 			}
 		}
 	}
@@ -161,7 +165,7 @@ class Grid{
 		let x = cell.x;
 		let y = cell.y;
 
-		if (x >=1){
+		if (x >= 1){
 			adjacents.push(this.cells[x - 1][y])
 		}
 
@@ -169,7 +173,7 @@ class Grid{
 			adjacents.push(this.cells[x + 1][y])
 		}
 
-		if (y >=1){
+		if (y >= 1){
 			adjacents.push(this.cells[x][y - 1])
 		}
 		if (y < this.cells[0].length - 1){
@@ -184,6 +188,25 @@ var grid;
 
 function setup(){
 	createCanvas(800, 8000);
+	frameRate(60)
+
+	stroke(0,0,0,30)
+
+	RED.r = random(180,255);
+	RED.g = random(0,60);
+	RED.b = random(0,60);
+
+	BLUE.r = random(0,60);
+	BLUE.g = random(0,60);
+	BLUE.b = random(180,255);
+
+	GREEN.r = random(0,60);
+	GREEN.g = random(180,255);
+	GREEN.b = random(0,60);
+
+	console.log(RED)
+	console.log(BLUE)
+	console.log(GREEN)
 
 	grid = new Grid(800, 800, 80, 80);
 	grid.draw();
