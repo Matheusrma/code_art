@@ -1,5 +1,3 @@
-
-
 var RED = {
 	"id":"1",
 	"a": 255
@@ -7,17 +5,11 @@ var RED = {
 
 var BLUE = {
 	"id":"2",
-	"r":34,
-	"g":102,
-	"b":102,
 	"a": 255
 }
 
 var GREEN = {
 	"id":"3",
-	"r":165,
-	"g":198,
-	"b":99,
 	"a": 255
 }
 
@@ -121,7 +113,7 @@ class Grid{
 
 		var breed = false;
 		let breedChance = random(0,1);
-		if (breedChance > 0.10) return;
+		if (breedChance > 0.06) return;
 
 		for (let k = 0; k < adjacents.length; ++k){
 			if (adjacents[k].color.id == BLUE.id){
@@ -187,22 +179,22 @@ class Grid{
 var grid;
 
 function setup(){
-	createCanvas(800, 8000);
+	createCanvas(800, 800);
 	frameRate(60)
 
-	stroke(0,0,0,30)
+	stroke(0,0,0,0)
 
-	RED.r = random(180,255);
-	RED.g = random(0,60);
-	RED.b = random(0,60);
+	RED.r = random(0,255);
+	RED.g = random(0,255);
+	RED.b = random(0,255);
 
-	BLUE.r = random(0,60);
-	BLUE.g = random(0,60);
-	BLUE.b = random(180,255);
+	BLUE.r = random(0,255);
+	BLUE.g = random(0,255);
+	BLUE.b = random(0,255);
 
-	GREEN.r = random(0,60);
-	GREEN.g = random(180,255);
-	GREEN.b = random(0,60);
+	GREEN.r = random(0,255);
+	GREEN.g = random(0,255);
+	GREEN.b = random(0,255);
 
 	console.log(RED)
 	console.log(BLUE)
